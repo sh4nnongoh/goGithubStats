@@ -26,7 +26,6 @@ A terminal application that accepts a list of public Github repositories through
     ```
 
 ### Docker
-    ```
+
     $ docker build -t sh4nnongoh/goGithubStats:latest .
     $ docker run -t sh4nnongoh/goGithubStats:latest
-    ```
