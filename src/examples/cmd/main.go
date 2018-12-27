@@ -5,6 +5,8 @@ import (
 	"flag"
 	"log"
 	"os"
+
+	"github.com/sh4nnongoh/goGithubStats/src/githubstatscmd"
 )
 
 func main() {
@@ -24,6 +26,6 @@ func main() {
 		log.Println(err)
 	}
 
-	githubReport := NewGithubStatisticsService(*username, *token, repositoryList)
+	githubReport := githubstatscmd.NewGithubReport(*username, *token, repositoryList)
 	githubReport.PrintRepositoryDetails()
 }
