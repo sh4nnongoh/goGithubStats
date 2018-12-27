@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/sh4nnongoh/goGithubStats/src/githubstatscmd"
+	"github.com/sh4nnongoh/goGithubStats/src/githubstatsterminal"
 )
 
 func main() {
@@ -26,6 +26,6 @@ func main() {
 		log.Println(err)
 	}
 
-	githubReport := githubstatscmd.NewGithubReport(*username, *token, repositoryList)
-	githubReport.PrintRepositoryDetails()
+	githubReport := githubstatsterminal.NewGithubReport(*username, *token, repositoryList)
+	githubReport.PrintRepositoryDetailsCSV()
 }

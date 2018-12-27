@@ -1,4 +1,4 @@
-package githubstatscmd
+package githubstatsterminal
 
 import (
 	"encoding/csv"
@@ -19,22 +19,22 @@ func NewGithubReport(username, token string, repositoryList []string) GithubRepo
 }
 
 type GithubReport interface {
-	PrintRepositoryDetails() []string
+	PrintRepositoryDetailsCSV()
+	PrintRepositoryDetailsString() string
 }
 
 type githubReport struct {
 	repo []Repository
 }
 
-func (i githubReport) PrintRepositoryDetails() []string {
+func (i githubReport) PrintRepositoryDetailsCSV() {
 	w := csv.NewWriter(os.Stdout)
 	headers := Repository{}.GetHeaders()
 	if err := w.Write(headers); err != nil {
 		log.Fatalln("error writing record to csv:", err)
 	}
-	var values []string
 	for _, r := range i.repo {
-		values = r.ToSlice()
+		values := r.ToSlice()
 		if err := w.Write(values); err != nil {
 			log.Fatalln("error writing record to csv:", err)
 		}
@@ -43,7 +43,24 @@ func (i githubReport) PrintRepositoryDetails() []string {
 	if err := w.Error(); err != nil {
 		log.Fatal(err)
 	}
-	return nil
+}
+
+func (i githubReport) PrintRepositoryDetailsString() string {
+	report := ""
+	headers := Repository{}.GetHeaders()
+	for _, h := range headers {
+		report += h + ","
+	}
+	report += "\n"
+	for _, r := range i.repo {
+		values := r.ToSlice()
+		for _, f := range values {
+			report += f + ","
+		}
+		report += "\n"
+	}
+
+	return report
 }
 
 type Repository struct {
