@@ -1,9 +1,5 @@
 # goGithubStats
-<<<<<<< HEAD
-A Go app that accepts a list of public Github repositories and prints out the name, clone URL, date of latest commit and name of latest author for each one.
-=======
 A terminal application that accepts a list of public Github repositories through STDIN pipe and prints out the name, clone URL, date of latest commit and name of latest author for each one.
->>>>>>> c985f01246808b285bc94e1f41a1ff29d5f9deb4
 
 ## Input
 - Read plain text list of repositories from stdin
