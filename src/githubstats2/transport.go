@@ -8,7 +8,7 @@ import (
 	"github.com/go-kit/kit/endpoint"
 )
 
-func MakeGenerateReportEndpoint(svc GithubReportService) endpoint.Endpoint {
+func MakeGenerateReportEndpoint(svc Service) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (interface{}, error) {
 		req := request.(generateReportRequest)
 		r := svc.GenerateReport(req.Username, req.Token, req.RepositoryName)

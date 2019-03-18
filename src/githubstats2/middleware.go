@@ -20,7 +20,7 @@ func NewInstrumentingMiddleware(
 	requestCount metrics.Counter,
 	requestLatency metrics.Histogram,
 	countResult metrics.Histogram,
-	next GithubReportService) InstrumentingMiddleware {
+	next Service) InstrumentingMiddleware {
 
 	return instrumentingMiddleware{requestCount, requestLatency, countResult, next}
 }
@@ -33,7 +33,7 @@ type instrumentingMiddleware struct {
 	requestCount   metrics.Counter
 	requestLatency metrics.Histogram
 	countResult    metrics.Histogram
-	next           GithubReportService
+	next           Service
 }
 
 func (mw instrumentingMiddleware) GenerateReport(username, token string, repository []string) (output []repository) {

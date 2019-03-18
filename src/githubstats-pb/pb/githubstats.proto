@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package pb;
+
+// The GithubStats service definition
+service GithubStats {
+    // Generates a github statistics report
+    rpc GenerateReport (GenerateReportRequest) returns (GenerateReportResponse);
+}
+
+message GenerateReportRequest {
+    string Username                 = 1;
+	string Token                    = 2;
+    repeated string RepositoryName  = 3;
+}
+
+message GenerateReportResponse {
+	repeated repository Repository = 1;
+	string Err                     = 2;
+}
+
+message repository {
+    string RepositoryFullName = 1;
+	string RepositoryName     = 2;
+	string CloneURL           = 3;
+	string LatestCommitDate   = 4;
+	string LatestCommitAuthor = 5;
+}

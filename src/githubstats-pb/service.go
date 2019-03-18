@@ -1,24 +1,27 @@
-package githubstats2
+package githubstats
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
 	"sync"
+
+	"github.com/sh4nnongoh/goGithubStats/src/githubstats-pb/pb"
 )
 
 func NewService() Service {
-	return Service{}
+	return service{}
 }
 
 type Service interface {
 	GenerateReport(username, token string, repository []string) []repository
 }
 
-type Service struct{}
+type service struct{}
 
-func (Service) GenerateReport(username, token string, repositoryName []string) []repository {
+func (service) GenerateReport(username, token string, repositoryName []string) []repository {
 	var wg sync.WaitGroup
 	c := make(chan repository)
 	wg.Add(len(repositoryName))
@@ -94,3 +97,29 @@ func (Service) GenerateReport(username, token string, repositoryName []string) [
 
 // ErrEmpty is returned when an input string is empty.
 var ErrEmpty = errors.New("empty string")
+
+func NewGrpcService(s Service) grpcService {
+	return grpcService{s}
+}
+
+type grpcService struct {
+	Service
+}
+
+func (s grpcService) GenerateReport(ctx context.Context, request *pb.GenerateReportRequest) (*pb.GenerateReportResponse, error) {
+	var repository []*pb.Repository
+	var repos = s.Service.GenerateReport(request.GetUsername(), request.GetToken(), request.GetRepositoryName())
+	for _, r := range repos {
+		repository = append(
+			repository,
+			&pb.Repository{
+				RepositoryFullName: r.RepositoryFullName,
+				RepositoryName:     r.RepositoryName,
+				CloneURL:           r.CloneURL,
+				LatestCommitDate:   r.LatestCommitDate,
+				LatestCommitAuthor: r.LatestCommitAuthor,
+			})
+	}
+
+	return &pb.GenerateReportResponse{Repository: repository, Err: ""}, nil
+}

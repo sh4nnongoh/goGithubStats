@@ -8,10 +8,13 @@ import (
 
 	"flag"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"google.golang.org/grpc"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -20,7 +23,8 @@ import (
 	"github.com/gorilla/mux"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/sh4nnongoh/goGithubStats/src/githubstats2"
+	githubstats "github.com/sh4nnongoh/goGithubStats/src/githubstats-pb"
+	"github.com/sh4nnongoh/goGithubStats/src/githubstats-pb/pb"
 	"github.com/sony/gobreaker"
 )
 
@@ -29,8 +33,10 @@ func testStateChange(name string, from, to gobreaker.State) {
 }
 
 func main() {
+	fs := flag.NewFlagSet("", flag.ExitOnError)
 	var (
-		httpAddr = flag.String("http.addr", ":8080", "HTTP listen address")
+		httpAddr = fs.String("http.addr", ":8080", "HTTP listen address")
+		grpcAddr = fs.String("grpc.addr", ":8002", "Address for gRPC server")
 	)
 	flag.Parse()
 	logger := log.NewLogfmtLogger(os.Stderr)
@@ -55,13 +61,13 @@ func main() {
 		Help:      "The result of each count method.",
 	}, []string{}) // no fields here
 
-	var svc githubstats2.Service
-	svc = githubstats2.NewService()
-	svc = githubstats2.NewLoggingMiddleware(logger, svc)
-	svc = githubstats2.NewInstrumentingMiddleware(requestCount, requestLatency, countResult, svc)
+	var svc githubstats.Service
+	svc = githubstats.NewService()
+	svc = githubstats.NewLoggingMiddleware(logger, svc)
+	svc = githubstats.NewInstrumentingMiddleware(requestCount, requestLatency, countResult, svc)
 
 	// var generateReport endpoint.Endpoint
-	// generateReport = githubstats2.MakeGenerateReportEndpoint(svc)
+	// generateReport = githubstats.MakeGenerateReportEndpoint(svc)
 	// settings := gobreaker.Settings{
 	// 	Name:          "test",
 	// 	MaxRequests:   1,
@@ -81,9 +87,9 @@ func main() {
 	}
 
 	r.Methods("POST").Path("/generateReport").Handler(httptransport.NewServer(
-		githubstats2.MakeGenerateReportEndpoint(svc),
-		githubstats2.DecodeGenerateReportRequest,
-		githubstats2.EncodeResponse,
+		githubstats.MakeGenerateReportEndpoint(svc),
+		githubstats.DecodeGenerateReportRequest,
+		githubstats.EncodeResponse,
 		options...,
 	))
 
@@ -108,6 +114,20 @@ func main() {
 			Handler: r,
 		}
 		errs <- server.ListenAndServe()
+	}()
+
+	// Transport: gRPC
+	go func() {
+		//transportLogger := log.NewContext(logger).With("transport", "gRPC")
+		ln, err := net.Listen("tcp", *grpcAddr)
+		if err != nil {
+			errs <- err
+			return
+		}
+		s := grpc.NewServer() // uses its own, internal context
+		pb.RegisterGithubStatsServer(s, githubstats.NewGrpcService(svc))
+		_ = logger.Log("addr", *grpcAddr)
+		errs <- s.Serve(ln)
 	}()
 
 	level.Error(logger).Log("exit", <-errs)

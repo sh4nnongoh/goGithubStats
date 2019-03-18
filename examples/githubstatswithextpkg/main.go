@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	svc := githubstatswithextpkg.NewGithubReportService()
+	svc := githubstatswithextpkg.NewService()
 
 	generateReportHandler := httptransport.NewServer(
 		githubstatswithextpkg.MakeGenerateReportEndpoint(svc),

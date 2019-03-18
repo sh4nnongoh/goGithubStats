@@ -42,8 +42,8 @@ func main() {
 		Help:      "The result of each count method.",
 	}, []string{}) // no fields here
 
-	var svc githubstats.GithubReportService
-	svc = githubstats.NewGithubReportService()
+	var svc githubstats.Service
+	svc = githubstats.NewService()
 	svc = githubstats.NewLoggingMiddleware(logger, svc)
 	svc = githubstats.NewInstrumentingMiddleware(requestCount, requestLatency, countResult, svc)
 

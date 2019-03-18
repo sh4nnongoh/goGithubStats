@@ -11,17 +11,17 @@ import (
 	"github.com/sh4nnongoh/goGithubStats/src/githubstatsterminal"
 )
 
-func NewGithubReportService() GithubReportService {
-	return githubReportService{}
+func NewService() Service {
+	return Service{}
 }
 
-type GithubReportService interface {
+type Service interface {
 	GenerateReport(username, token string, repository []string) string
 }
 
-type githubReportService struct{}
+type Service struct{}
 
-func (githubReportService) GenerateReport(username, token string, repositoryName []string) string {
+func (Service) GenerateReport(username, token string, repositoryName []string) string {
 	report := githubstatsterminal.NewGithubReport(username, token, repositoryName)
 	return report.PrintRepositoryDetailsString()
 }
@@ -41,7 +41,7 @@ type generateReportResponse struct {
 	Err    string `json:"err,omitempty"` // errors don't define JSON marshaling
 }
 
-func MakeGenerateReportEndpoint(svc GithubReportService) endpoint.Endpoint {
+func MakeGenerateReportEndpoint(svc Service) endpoint.Endpoint {
 	return func(_ context.Context, request interface{}) (interface{}, error) {
 		req := request.(generateReportRequest)
 		r := svc.GenerateReport(req.Username, req.Token, req.RepositoryName)

@@ -8,17 +8,17 @@ import (
 	"sync"
 )
 
-func NewGithubReportService() GithubReportService {
-	return githubReportService{}
+func NewService() Service {
+	return Service{}
 }
 
-type GithubReportService interface {
+type Service interface {
 	GenerateReport(username, token string, repository []string) []repository
 }
 
-type githubReportService struct{}
+type Service struct{}
 
-func (githubReportService) GenerateReport(username, token string, repositoryName []string) []repository {
+func (Service) GenerateReport(username, token string, repositoryName []string) []repository {
 	var wg sync.WaitGroup
 	c := make(chan repository)
 	wg.Add(len(repositoryName))

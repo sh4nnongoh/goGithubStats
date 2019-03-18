@@ -7,7 +7,7 @@ import (
 	"github.com/go-kit/kit/log"
 )
 
-func NewLoggingMiddleware(logger log.Logger, next GithubReportService) LoggingMiddleware {
+func NewLoggingMiddleware(logger log.Logger, next Service) LoggingMiddleware {
 
 	return loggingMiddleware{logger, next}
 }
@@ -18,7 +18,7 @@ type LoggingMiddleware interface {
 
 type loggingMiddleware struct {
 	logger log.Logger
-	next   GithubReportService
+	next   Service
 }
 
 func (mw loggingMiddleware) GenerateReport(username, token string, repository []string) (output []repository) {
