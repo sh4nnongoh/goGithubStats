@@ -119,6 +119,7 @@ func main() {
 	// Transport: gRPC
 	go func() {
 		//transportLogger := log.NewContext(logger).With("transport", "gRPC")
+		level.Info(logger).Log("transport", "GRPC", "addr", *grpcAddr)
 		ln, err := net.Listen("tcp", *grpcAddr)
 		if err != nil {
 			errs <- err
