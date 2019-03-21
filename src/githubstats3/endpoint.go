@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
+	stdopentracing "github.com/opentracing/opentracing-go"
+	"github.com/sony/gobreaker"
 	"golang.org/x/time/rate"
 
-	stdopentracing "github.com/opentracing/opentracing-go"
 	//stdzipkin "github.com/openzipkin/zipkin-go"
-	"github.com/sony/gobreaker"
 
 	"github.com/go-kit/kit/circuitbreaker"
 	"github.com/go-kit/kit/endpoint"
